@@ -13,19 +13,21 @@ contract LcdToken is Ownable, Contactable {
     uint constant public decimals = 18;
     uint constant public totalSupply = (10 ** 8) * (10 ** decimals); // 100 000 000 LCD
 
-    mapping (address => uint) public balances;
-    mapping (address => mapping (address => uint)) public allowed;
-    bool public isActivated  = false;
+    mapping (address => uint) balances;
+    mapping (address => mapping (address => uint)) allowed;
+    bool public isActivated = false;
+    mapping (address => bool) public whitelistedBeforeActivation;
 
     event Transfer(address indexed from, address indexed to, uint256 value);
     event Approval(address indexed owner, address indexed spender, uint value);
 
     function LcdToken() public {
         balances[owner] = totalSupply;
+        whitelistedBeforeActivation[owner] = true;
     }
 
     modifier whenActivated() {
-        require(isActivated);
+        require(isActivated || whitelistedBeforeActivation[msg.sender]);
         _;
     }
   
@@ -86,13 +88,15 @@ contract LcdToken is Ownable, Contactable {
      */
     function transferFrom(address _from, address _to, uint _value) external whenActivated returns (bool) {
         require(_to != address(0));
-    
         uint _allowance = allowed[_from][msg.sender];
-    
+
         balances[_from] = balances[_from].sub(_value);
         balances[_to] = balances[_to].add(_value);
+        
+        // _allowance.sub(_value) will throw if _value > _allowance
         allowed[_from][msg.sender] = _allowance.sub(_value);
         Transfer(_from, _to, _value);
+
         return true;
     }
 
@@ -102,13 +106,13 @@ contract LcdToken is Ownable, Contactable {
      * the first transaction is mined)
      * From MonolithDAO Token.sol
      */
-    function increaseApproval (address _spender, uint _addedValue) external whenActivated returns (bool) {
+    function increaseApproval(address _spender, uint _addedValue) external whenActivated returns (bool) {
         allowed[msg.sender][_spender] = allowed[msg.sender][_spender].add(_addedValue);
         Approval(msg.sender, _spender, allowed[msg.sender][_spender]);
         return true;
     }
 
-    function decreaseApproval (address _spender, uint _subtractedValue) external whenActivated returns (bool) {
+    function decreaseApproval(address _spender, uint _subtractedValue) external whenActivated returns (bool) {
         uint oldValue = allowed[msg.sender][_spender];
         if (_subtractedValue > oldValue) {
             allowed[msg.sender][_spender] = 0;
@@ -122,5 +126,10 @@ contract LcdToken is Ownable, Contactable {
     function activate() external onlyOwner returns (bool) {
         isActivated = true;
         return true;
+    }
+
+    function editWhitelist(address _address, bool isWhitelisted) external onlyOwner returns (bool) {
+        whitelistedBeforeActivation[_address] = isWhitelisted;
+        return true;        
     }
 }

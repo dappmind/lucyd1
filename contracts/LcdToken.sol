@@ -5,7 +5,7 @@ import "zeppelin-solidity/contracts/ownership/Ownable.sol";
 import "zeppelin-solidity/contracts/ownership/Contactable.sol";
 
 
-contract LcdToken is Ownable, Contactable {
+contract LcdToken is Contactable {
     using SafeMath for uint;
 
     string constant public name = "LCD";
@@ -37,7 +37,7 @@ contract LcdToken is Ownable, Contactable {
     * @param _value The amount to be transferred.
     */
     function transfer(address _to, uint _value) external whenActivated returns (bool) {
-        require(_to != address(0));
+        require(_to != 0x0);
     
         balances[msg.sender] = balances[msg.sender].sub(_value);
         balances[_to] = balances[_to].add(_value);
@@ -87,7 +87,7 @@ contract LcdToken is Ownable, Contactable {
      * @param _value uint the amount of tokens to be transferred
      */
     function transferFrom(address _from, address _to, uint _value) external whenActivated returns (bool) {
-        require(_to != address(0));
+        require(_to != 0x0);
         uint _allowance = allowed[_from][msg.sender];
 
         balances[_from] = balances[_from].sub(_value);

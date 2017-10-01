@@ -8,7 +8,6 @@ import "zeppelin-solidity/contracts/ownership/Contactable.sol";
 /**
 * TODO:
 * Tests
-* Rate change
 * Comments
 */ 
 
@@ -146,6 +145,11 @@ contract Crowdsale is Pausable, Contactable {
 
     function setEarlyParicipantWhitelist(address addr, bool isWhitelisted) external onlyOwner returns (bool) {
         earlyParticipantWhitelist[addr] = isWhitelisted;
+        return true;
+    }
+
+    function setRate(uint _rate) external onlyOwner returns (bool) {
+        rate = _rate;
         return true;
     }
 }

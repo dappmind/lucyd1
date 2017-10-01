@@ -143,7 +143,7 @@ contract Crowdsale is Pausable, Contactable {
         return capReached || afterEndTime;
     }
 
-    function setEarlyParicipantWhitelist(address addr, bool isWhitelisted) external onlyOwner returns (bool) {
+    function editEarlyParicipantWhitelist(address addr, bool isWhitelisted) external onlyOwner returns (bool) {
         earlyParticipantWhitelist[addr] = isWhitelisted;
         return true;
     }

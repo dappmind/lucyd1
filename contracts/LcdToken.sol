@@ -8,7 +8,7 @@ import "zeppelin-solidity/contracts/ownership/Contactable.sol";
 contract LcdToken is Contactable {
     using SafeMath for uint;
 
-    string constant public name = "LCD";
+    string constant public name = "Lucyd";
     string constant public symbol = "LCD";
     uint constant public decimals = 18;
     uint constant public totalSupply = (10 ** 8) * (10 ** decimals); // 100 000 000 LCD

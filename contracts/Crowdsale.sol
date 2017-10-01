@@ -1,13 +1,15 @@
 pragma solidity 0.4.15;
 
-import 'zeppelin-solidity/contracts/token/ERC20.sol';
+import "zeppelin-solidity/contracts/token/ERC20.sol";
 import "zeppelin-solidity/contracts/math/SafeMath.sol";
 import "zeppelin-solidity/contracts/lifecycle/Pausable.sol";
 import "zeppelin-solidity/contracts/ownership/Contactable.sol";
 
 /**
 * TODO:
-* Investor stats
+* Tests
+* Rate change
+* Comments
 */ 
 
 /**
@@ -42,6 +44,12 @@ contract Crowdsale is Pausable, Contactable {
 
     // maximum amount of tokens, that can be sold on this crowdsale
     uint public tokensCap;
+
+    // How many distinct addresses have invested
+    uint public investorCount = 0;
+
+    /** How much ETH each address has invested to this crowdsale */
+    mapping (address => uint) public investedAmountOf;
 
     // Addresses that are allowed to invest before ICO offical opens
     mapping (address => bool) public earlyParticipantWhitelist;
@@ -89,7 +97,7 @@ contract Crowdsale is Pausable, Contactable {
     }
 
     // low level token purchase function
-    function buyTokens(address beneficiary) public whenNotPaused payable {
+    function buyTokens(address beneficiary) public whenNotPaused payable returns (bool) {
         require(beneficiary != 0x0);
         require(validPurchase());
     
@@ -99,6 +107,11 @@ contract Crowdsale is Pausable, Contactable {
         uint tokenAmount = calculateTokenAmount(weiAmount);
     
         // update state
+        if (investedAmountOf[beneficiary] == 0) {
+            // A new investor
+            investorCount++;
+        }
+        investedAmountOf[beneficiary] = investedAmountOf[beneficiary].add(weiAmount);
         weiRaised = weiRaised.add(weiAmount);
         tokensSold = tokensSold.add(tokenAmount);
     
@@ -106,6 +119,8 @@ contract Crowdsale is Pausable, Contactable {
         TokenPurchase(msg.sender, beneficiary, weiAmount, tokenAmount);
     
         wallet.transfer(msg.value);
+
+        return true;
     }
 
     function calculateTokenAmount(uint value) public constant returns (uint) {
@@ -129,8 +144,8 @@ contract Crowdsale is Pausable, Contactable {
         return capReached || afterEndTime;
     }
 
-    function setEarlyParicipantWhitelist(address addr, bool status) external onlyOwner returns (bool) {
-        earlyParticipantWhitelist[addr] = status;
+    function setEarlyParicipantWhitelist(address addr, bool isWhitelisted) external onlyOwner returns (bool) {
+        earlyParticipantWhitelist[addr] = isWhitelisted;
         return true;
     }
 }

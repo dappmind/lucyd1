@@ -126,6 +126,10 @@ contract Crowdsale is Pausable, Contactable {
         return value.mul(rate);
     }
 
+    function weiCap() external constant returns (uint) {
+        return tokensCap.div(rate);
+    }
+
     // @return true if the transaction can buy tokens
     function validPurchase() internal constant returns (bool) {
         bool withinPeriod = (now >= startTime || earlyParticipantWhitelist[msg.sender]) && now <= endTime;

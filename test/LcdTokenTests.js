@@ -4,7 +4,7 @@ chai.use(require('chai-bignumber')());
 chai.use(require('chai-as-promised'))
 chai.should()
 
-let LcdToken = artifacts.require('./LcdToken.sol')
+const LcdToken = artifacts.require('./LcdToken.sol')
 
 contract('LcdToken', (accounts) => {
 

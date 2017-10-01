@@ -123,11 +123,18 @@ contract LcdToken is Contactable {
         return true;
     }
 
+    /**
+     * Activation of the token allows all tokenholders to operate with the token
+     */
     function activate() external onlyOwner returns (bool) {
         isActivated = true;
         return true;
     }
 
+    /**
+     * allows to add and exclude addresses from whitelistedBeforeActivation list for owner
+     * @param isWhitelisted is true for adding address into whitelist, false - to exclude
+     */
     function editWhitelist(address _address, bool isWhitelisted) external onlyOwner returns (bool) {
         whitelistedBeforeActivation[_address] = isWhitelisted;
         return true;        

@@ -5,11 +5,6 @@ import "zeppelin-solidity/contracts/math/SafeMath.sol";
 import "zeppelin-solidity/contracts/lifecycle/Pausable.sol";
 import "zeppelin-solidity/contracts/ownership/Contactable.sol";
 
-/**
-* TODO:
-* Tests
-* Comments
-*/ 
 
 /**
  * @title Crowdsale
@@ -146,12 +141,17 @@ contract Crowdsale is Pausable, Contactable {
         
         return capReached || afterEndTime;
     }
-
+    
+    /**
+     * allows to add and exclude addresses from earlyParticipantWhitelist for owner
+     * @param isWhitelisted is true for adding address into whitelist, false - to exclude
+     */
     function editEarlyParicipantWhitelist(address addr, bool isWhitelisted) external onlyOwner returns (bool) {
         earlyParticipantWhitelist[addr] = isWhitelisted;
         return true;
     }
 
+    // allows to update tokens rate for owner
     function setRate(uint _rate) external onlyOwner returns (bool) {
         rate = _rate;
         return true;

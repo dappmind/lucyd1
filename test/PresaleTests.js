@@ -20,59 +20,57 @@ contract('Presale', (accounts) => {
     const deployPresale = async (deltaStart, deltaEnd) => {
         const token = await LcdToken.deployed()
         const now = web3.eth.getBlock(web3.eth.blockNumber).timestamp
-        const crowdsale = await Presale.new(
+        const presale = await Presale.new(
             now + deltaStart,
             now + deltaEnd,
             RATE,
             CAP,
             token.address,
-            WALLET,
-            { from: OWNER }
+            WALLET
         )
         
-        await token.approve(crowdsale.address, CAP, {from: OWNER})
-        await token.editWhitelist(crowdsale.address, true, {from: OWNER})
-        console.log(crowdsale.address)
-        console.log(token.address)
-        return crowdsale
+        await token.approve(presale.address, CAP, {from: OWNER})
+        await token.editWhitelist(presale.address, true, {from: OWNER})
+
+        return presale
     }
 
-    let crowdsale
+    let presale
 
     before(async () => {
-        crowdsale = await Presale.deployed()
+        presale = await Presale.deployed()
     });
 
     it('should set owner correctly', async () => {
-        const res = await crowdsale.owner()
+        const res = await presale.owner()
 
         res.should.equal(OWNER)
     })
 
     it('should not allow to invest before start', async () => {
-        return crowdsale.sendTransaction({ from: INVESTOR, value: 1 })
+        return presale.sendTransaction({ from: INVESTOR, value: 1 })
             .should.be.rejected
     })
 
     it('should allow owner edit whitelist', async () => {
-        await crowdsale.editEarlyParicipantWhitelist(INVESTOR, true, { from: OWNER })
+        await presale.editEarlyParicipantWhitelist(INVESTOR, true, { from: OWNER })
 
-        const res = await crowdsale.earlyParticipantWhitelist(INVESTOR)
+        const res = await presale.earlyParticipantWhitelist(INVESTOR)
 
         res.should.be.true
     })
 
     it('should allow owner set rate', async () => {
-        await crowdsale.setRate(RATE, { from: OWNER })
+        await presale.setRate(RATE, { from: OWNER })
 
-        const res = new BigNumber(await crowdsale.rate())
+        const res = new BigNumber(await presale.rate())
 
         res.should.be.bignumber.equals(RATE)
     })
 
     it('should allow whitelisted investors to invest before start', async () => {
         const value = 1
-        await crowdsale.sendTransaction({ from: INVESTOR, value: value })
+        await presale.sendTransaction({ from: INVESTOR, value: value })
 
         const token = await LcdToken.deployed()
         const balance = new BigNumber(await token.balanceOf(INVESTOR))
@@ -82,13 +80,13 @@ contract('Presale', (accounts) => {
 
     it('should allow all investors to invest after start', async () => {
         const now = web3.eth.getBlock(web3.eth.blockNumber).timestamp
-        const startTime = (await crowdsale.startTime()).toNumber()
+        const startTime = (await presale.startTime()).toNumber()
         utils.increaseTime(startTime - now + 30)
 
         const value = 1
         const balance1 = new BigNumber(web3.eth.getBalance(WALLET))
 
-        await crowdsale.sendTransaction({ from: INVESTOR2, value: value })
+        await presale.sendTransaction({ from: INVESTOR2, value: value })
 
         const token = await LcdToken.deployed()
         const tokens = new BigNumber(await token.balanceOf(INVESTOR))
@@ -99,20 +97,20 @@ contract('Presale', (accounts) => {
     })
 
     it('should now allow to invest more then hard cap', async () => {
-        const weiCap = await crowdsale.weiCap()
-        const weiRaised = await crowdsale.weiRaised()
-        await crowdsale.sendTransaction({ from: INVESTOR2, value: weiCap.minus(weiRaised) })
+        const weiCap = await presale.weiCap()
+        const weiRaised = await presale.weiRaised()
+        await presale.sendTransaction({ from: INVESTOR2, value: weiCap.minus(weiRaised) })
 
-        return crowdsale.sendTransaction({ from: INVESTOR2, value: 1 }).should.be.rejected
+        return presale.sendTransaction({ from: INVESTOR2, value: 1 }).should.be.rejected
     })
 
-    xit('should now allow to invest after endTime', async () => {
-        crowdsale = await deployPresale(10,11)
+    it('should now allow to invest after endTime', async () => {
+        presale = await deployPresale(10,11)
         const now = web3.eth.getBlock(web3.eth.blockNumber).timestamp
-        const endTime = (await crowdsale.endTime()).toNumber()
+        const endTime = (await presale.endTime()).toNumber()
         utils.increaseTime(endTime - now + 30)
 
-        return crowdsale.sendTransaction({ from: INVESTOR2, value: 1 }).should.be.rejected
+        return presale.sendTransaction({ from: INVESTOR2, value: 1 }).should.be.rejected
     })
 
 });

@@ -6,9 +6,9 @@ chai.use(require('chai-as-promised'))
 chai.should()
 
 const LcdToken = artifacts.require('./LcdToken.sol')
-const Crowdsale = artifacts.require('./Crowdsale.sol')
+const Presale = artifacts.require('./Presale.sol')
 
-contract('Crowdsale', (accounts) => {
+contract('Presale', (accounts) => {
 
     const OWNER = accounts[0]
     const INVESTOR = accounts[1]
@@ -17,10 +17,10 @@ contract('Crowdsale', (accounts) => {
     const RATE = 2
     const CAP = 100
 
-    const deployCrowdsale = async (deltaStart, deltaEnd) => {
+    const deployPresale = async (deltaStart, deltaEnd) => {
         const token = await LcdToken.deployed()
         const now = web3.eth.getBlock(web3.eth.blockNumber).timestamp
-        const crowdsale = await Crowdsale.new(
+        const crowdsale = await Presale.new(
             now + deltaStart,
             now + deltaEnd,
             RATE,
@@ -40,7 +40,7 @@ contract('Crowdsale', (accounts) => {
     let crowdsale
 
     before(async () => {
-        crowdsale = await Crowdsale.deployed()
+        crowdsale = await Presale.deployed()
     });
 
     it('should set owner correctly', async () => {
@@ -107,7 +107,7 @@ contract('Crowdsale', (accounts) => {
     })
 
     xit('should now allow to invest after endTime', async () => {
-        crowdsale = await deployCrowdsale(10,11)
+        crowdsale = await deployPresale(10,11)
         const now = web3.eth.getBlock(web3.eth.blockNumber).timestamp
         const endTime = (await crowdsale.endTime()).toNumber()
         utils.increaseTime(endTime - now + 30)

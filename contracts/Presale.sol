@@ -7,14 +7,14 @@ import "zeppelin-solidity/contracts/ownership/Contactable.sol";
 
 
 /**
- * @title Crowdsale
- * @dev Crowdsale is a contract for managing a token crowdsale.
- * Crowdsales have a start and end timestamps, where investors can make
+ * @title Presale
+ * @dev Presale is a contract for managing a token crowdsale.
+ * Presales have a start and end timestamps, where investors can make
  * token purchases and the crowdsale will assign them tokens based
  * on a token per ETH rate. Funds collected are forwarded to a wallet
  * as they arrive.
  */
-contract Crowdsale is Pausable, Contactable {
+contract Presale is Pausable, Contactable {
     using SafeMath for uint;
   
     // The token being sold
@@ -62,7 +62,7 @@ contract Crowdsale is Pausable, Contactable {
         uint tokenAmount
     );
 
-    function Crowdsale(
+    function Presale(
         uint _startTime,
         uint _endTime,
         uint _rate,

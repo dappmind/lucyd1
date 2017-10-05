@@ -1,11 +1,12 @@
 const BigNumber = require('bignumber.js')
 
 const LcdToken = artifacts.require("./LcdToken.sol")
-const Crowdsale = artifacts.require('./Crowdsale.sol')
+const Presale = artifacts.require('./Presale.sol')
+const Sale = artifacts.require('./Sale.sol')
 
 module.exports = function (deployer, network, accounts) {
     let startTime, endTime, rate, cap, wallet
-
+    
     if (network == 'live') {
         startTime = 1508198400 //Tuesday, October 17, 2017 00:00:00 UTC
         endTime = 1509408000   //Tuesday, October 31, 2017 00:00:00 UTC
@@ -21,20 +22,20 @@ module.exports = function (deployer, network, accounts) {
         cap = new BigNumber(100)
         wallet = accounts[3]
     }
-
-    deployer.deploy(LcdToken)
-        .then(() => deployer.deploy(Crowdsale,
-            startTime,
-            endTime,
-            rate,
-            cap,
-            LcdToken.address,
-            wallet
-        ))
-        .then(() => LcdToken.deployed())
-        .then((token) => {
-            return token.approve(Crowdsale.address, cap)
-                .then(() => token.editWhitelist(Crowdsale.address, true))
-        })
-        .then(() => console.log('Pre-ICO contracts deployed successfully'))
+    
+    deployer.deploy(Sale,
+        startTime,
+        endTime,
+        rate,
+        cap,
+        LcdToken.address,
+        wallet,
+        Presale.address
+    )
+    .then(() => LcdToken.deployed())
+    .then((token) => {
+        return token.approve(Sale.address, cap)
+        .then(() => token.editWhitelist(Sale.address, true))
+    })
+    .then(() => console.log('Sale contracts deployed successfully'))
 };

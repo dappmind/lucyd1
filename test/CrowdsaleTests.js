@@ -18,21 +18,22 @@ contract('Crowdsale', (accounts) => {
     const CAP = 100
 
     const deployCrowdsale = async (deltaStart, deltaEnd) => {
+        const token = await LcdToken.deployed()
         const now = web3.eth.getBlock(web3.eth.blockNumber).timestamp
         const crowdsale = await Crowdsale.new(
             now + deltaStart,
             now + deltaEnd,
             RATE,
             CAP,
-            LcdToken.address,
+            token.address,
             WALLET,
             { from: OWNER }
         )
-
-        const token = await LcdToken.new({ from: OWNER })
+        
         await token.approve(crowdsale.address, CAP, {from: OWNER})
         await token.editWhitelist(crowdsale.address, true, {from: OWNER})
-        console.log(crowdsale)
+        console.log(crowdsale.address)
+        console.log(token.address)
         return crowdsale
     }
 
@@ -106,7 +107,7 @@ contract('Crowdsale', (accounts) => {
     })
 
     xit('should now allow to invest after endTime', async () => {
-        crowdsale = deployCrowdsale(10,11)
+        crowdsale = await deployCrowdsale(10,11)
         const now = web3.eth.getBlock(web3.eth.blockNumber).timestamp
         const endTime = (await crowdsale.endTime()).toNumber()
         utils.increaseTime(endTime - now + 30)
